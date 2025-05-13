@@ -1,0 +1,109 @@
+---
+title: "EDA - Energy Consumption and Weather Data"
+author: "Alejandro Matías Astorga"
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+options(scipen = 999)  # evitar notación científica
+```
+
+📦 Load libraries
+
+```{r libraries}
+library(tidyverse)
+library(lubridate)
+library(skimr)
+library(janitor)
+library(ggplot2)
+library(ggthemes)
+library(viridis)
+```
+
+📁 Load data
+
+```{r load_data}
+energy <- read_csv("data/raw/energy_dataset.csv")
+weather <- read_csv("data/raw/weather_features.csv")
+```
+
+🧹 1. Data Overview & Structure
+
+```{r structure}
+glimpse(energy)
+glimpse(weather)
+```
+
+```{r skim-summary}
+skim(energy)
+skim(weather)
+```
+
+🔍 2. Cleaning & Preprocessing
+
+```{r clean-columns}
+energy <- energy %>% clean_names()
+weather <- weather %>% clean_names()
+```
+
+📊 3. Exploratory Plots
+
+Energy: total production vs consumption
+```{r plot-energy}
+energy %>%
+  select(datetime, total_load_actual, total_load_forecast) %>%
+  pivot_longer(-datetime) %>%
+  ggplot(aes(x = datetime, y = value, color = name)) +
+  geom_line(alpha = 0.7) +
+  labs(title = "Energy Load: Actual vs Forecast", y = "Load (MW)", x = "Time") +
+  theme_minimal()
+```
+
+Weather variables
+
+```{r plot-weather}
+weather %>%
+  select(datetime, temperature, wind_speed, humidity) %>%
+  pivot_longer(-datetime) %>%
+  ggplot(aes(x = datetime, y = value, color = name)) +
+  geom_line(alpha = 0.6) +
+  facet_wrap(~name, scales = "free_y") +
+  labs(title = "Weather Features Over Time") +
+  theme_minimal()
+```
+
+🔁 4. Merging Datasets (if needed)
+
+```{r merge}
+combined <- left_join(energy, weather, by = "datetime")
+```
+
+📈 5. Correlation Analysis
+
+```{r correlation}
+combined %>%
+  select(-datetime) %>%
+  drop_na() %>%
+  cor() %>%
+  as.data.frame() %>%
+  round(2)
+```
+
+📅 6. Temporal Patterns
+
+```{r time-features}
+combined <- combined %>%
+  mutate(
+    hour = hour(datetime),
+    wday = wday(datetime, label = TRUE),
+    month = month(datetime, label = TRUE)
+  )
+```
+
+🧠 7. Insights & Next Steps

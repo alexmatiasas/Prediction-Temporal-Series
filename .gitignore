@@ -20,7 +20,6 @@ __pycache__/
 renv/library/
 renv/python/
 renv/staging/
-renv.lock
 
 # Notebooks
 .ipynb_checkpoints/
@@ -56,3 +55,12 @@ build/
 dist/
 *.manifest
 *.spec
+
+# R / renv
+.Rprofile
+renv/library/
+renv/python/
+renv/staging/
+
+# Datasets locales
+data/
