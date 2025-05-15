@@ -1,61 +1,183 @@
 ---
 title: "EDA - Energy Consumption and Weather Data"
-author: "Alejandro Matías Astorga"
+author: "Manuel Alejandro Matías Astorga"
 output:
   html_document:
     toc: true
     toc_depth: 2
     toc_float: true
-    number_sections: true
+    number_sections: false
 ---
 
+This notebook performs an exploratory data analysis (EDA) on the [hourly energy demand, generation, pricing, and weather dataset](https://www.kaggle.com/datasets/nicholasjhana/energy-consumption-generation-prices-and-weather).
+
+> This dataset contains four years of hourly data on electricity consumption, generation, prices, and weather conditions in Spain. Energy data was retrieved from ENTSOE (a public TSO portal), pricing data from Red Eléctrica Española, and weather data (for the five largest cities in Spain) was originally obtained via the OpenWeather API and made public by the dataset author.
+
+The main goals of this EDA are:
+
+- To understand the structure and quality of the datasets.
+- To detect missing or inconsistent values.
+- To identify temporal patterns in energy usage.
+- To prepare the data for feature engineering and modeling.
+
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
-options(scipen = 999)  # evitar notación científica
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)        # Set global options for knitr
+options(scipen = 999)  # avoid scientific notation
 ```
 
-📦 Load libraries
+**📦 Load libraries**
 
 ```{r libraries}
-library(tidyverse)
-library(lubridate)
-library(skimr)
-library(janitor)
-library(ggplot2)
-library(ggthemes)
-library(viridis)
+# Load necessary packages for data wrangling and visualization
+library(tidyverse)    # Core data manipulation tools
+library(lubridate)    # Date-time parsing and extraction
+library(skimr)        # Data summary and structure
+library(janitor)      # Clean column names
+library(ggplot2)      # Data visualization
+library(ggthemes)     # Visualization themes
+library(viridis)      # Color palettes
+library(ggcorrplot)   # Correlation matrix visualization
 ```
 
-📁 Load data
+**📁 Load data**
 
 ```{r load_data}
-energy <- read_csv("data/raw/energy_dataset.csv")
-weather <- read_csv("data/raw/weather_features.csv")
+# Read raw CSV files (energy and weather) from 'data/raw' relative to notebook location
+energy <- read_csv("../data/raw/energy_dataset.csv")
+weather <- read_csv("../data/raw/weather_features.csv")
 ```
 
-🧹 1. Data Overview & Structure
+## 🧹 1. Data Overview & Structure
 
-```{r structure}
+To begin the analysis, we perform a quick structural inspection using `glimpse()` and a detailed statistical summary with `skim()` for both datasets: **energy** and **weather**.
+
+**🔍 Glimpse: Energy Dataset**
+
+```{r structure-energy}
+# Display the structure of the energy dataset
 glimpse(energy)
+```
+
+The *energy* dataset contains 35,064 hourly records and 29 columns, which include:
+
+- Timestamps (`time`)
+- Energy generation by source (e.g., `generation_biomass`, `generation_solar`)
+- Forecast and actual values for energy consumption (`total_load_forecast`, `total_load_actual`)
+- Pricing variables (`price_day_ahead`, `price_actual`)
+
+The data appears to span from *2014-12-31* to *2018-12-31* with 1-hour intervals.
+
+**🔍 Glimpse: Weather Dataset**
+
+```{r structure-weather}
 glimpse(weather)
 ```
 
-```{r skim-summary}
+The weather dataset has 178,396 rows and 17 columns, including:
+
+- Timestamps (`dt_iso`)
+- Weather observations for major Spanish cities (`city_name`)
+- Variables such as `temp`, `humidity`, `wind_speed`, `pressure`, and `weather_description`
+
+This dataset also has a datetime range matching the energy dataset, which facilitates temporal merging.
+
+**📊 Skim: Summary Statistics**
+
+**⚡ Energy Dataset**
+
+```{r skim-summary-energy}
 skim(energy)
+```
+
+- Most columns are numeric (`dbl`), with one datetime column (`POSIXct`) and two logical columns that represent completely missing data (`NA` only).
+- Missing data is generally very low (≤ 0.1%) across most variables, except for two:
+  - `generation_hydro_pumped_storage_aggregated`
+  - `forecast_wind_offshore_eday_ahead`
+These two were removed from the dataset due to having **100% missing values**.
+- Some generation sources such as **coal-derived gas**, **oil shale**, and **geothermal** are recorded as zeros or missing throughout the entire time series — this might be expected depending on Spain’s energy infrastructure.
+
+**🌦️ Weather Dataset**
+
+```{r skim-summary-weather}
 skim(weather)
+```
+
+- Weather data is well-structured with `no missing values` in any column.
+- It includes:
+  - Numeric weather conditions (`temp`, `pressure`, `wind_speed`, etc.)
+  - Categorical weather types (`weather_main`, `weather_description`)
+  - Identifiers and icons from the API (`weather_id`, `weather_icon`)
+
+This dataset is well-suited for modeling, with consistent sampling and granularity.
+
+**📌 Conclusion of Initial Inspection**
+
+- Both datasets are **clean and well-structured**.
+- We removed only two columns due to full missingness.
+- The time coverage and granularity are compatible, making them ideal for feature engineering and merging.
+- From this point forward, we can derive temporal features, visualize trends, and assess correlations.
+
+Finally we treat our datasets based on out observations:
+
+- We double-check for missing values and
+
+```{r missing-values}
+# Summarize missing values per variable in both datasets to assess data quality
+weather %>%
+  summarise(across(everything(), ~ sum(is.na(.)))) %>%
+  pivot_longer(everything(), names_to = "variable", values_to = "n_missing") %>%
+  mutate(
+    pct_missing = round(100 * n_missing / nrow(weather), 2)
+  ) %>%
+  arrange(desc(pct_missing))
+
+# NA summary - Energy
+energy %>%
+  summarise(across(everything(), ~ sum(is.na(.)))) %>%
+  pivot_longer(everything(), names_to = "variable", values_to = "n_missing") %>%
+  mutate(
+    pct_missing = round(100 * n_missing / nrow(energy), 2)
+  ) %>%
+  arrange(desc(pct_missing))
+```
+
+- remove columns with 100% missingness.
+
+```{r eliminating-columns-with-100-percent-missing}
+# Remove columns that contain 100% missing values and provide no useful information
+# Column names must be cleaned before attempting to remove NA columns
+# 1. Clean column names
+energy <- energy %>% clean_names()
+weather <- weather %>% clean_names()
+
+# 2. Remove 100% missing columns (now using cleaned names)
+energy <- energy %>%
+  select(-any_of(c("generation_hydro_pumped_storage_aggregated",
+                   "forecast_wind_offshore_eday_ahead")))
 ```
 
 🔍 2. Cleaning & Preprocessing
 
-```{r clean-columns}
-energy <- energy %>% clean_names()
-weather <- weather %>% clean_names()
+```{r columns-names}
+colnames(energy)
+colnames(weather)
+```
+
+```{r rename-columns-datetime}
+# Rename time columns to 'datetime' for consistency
+energy <- energy %>%
+  rename(datetime = time)
+
+weather <- weather %>%
+  rename(datetime = dt_iso)
 ```
 
 📊 3. Exploratory Plots
 
 Energy: total production vs consumption
+
 ```{r plot-energy}
+# Plot actual vs forecasted energy load over time
 energy %>%
   select(datetime, total_load_actual, total_load_forecast) %>%
   pivot_longer(-datetime) %>%
@@ -68,8 +190,9 @@ energy %>%
 Weather variables
 
 ```{r plot-weather}
+# Compare temperature, humidity, and wind speed trends
 weather %>%
-  select(datetime, temperature, wind_speed, humidity) %>%
+  select(datetime, temp, wind_speed, humidity) %>%
   pivot_longer(-datetime) %>%
   ggplot(aes(x = datetime, y = value, color = name)) +
   geom_line(alpha = 0.6) +
@@ -88,11 +211,21 @@ combined <- left_join(energy, weather, by = "datetime")
 
 ```{r correlation}
 combined %>%
-  select(-datetime) %>%
+  select(where(is.numeric)) %>%   # just numeric columns
   drop_na() %>%
   cor() %>%
   as.data.frame() %>%
   round(2)
+```
+
+```{r correlation-plot}
+# Visualize correlation matrix
+corr_matrix <- combined %>%
+  select(where(is.numeric)) %>%
+  drop_na() %>%
+  cor()
+
+ggcorrplot(corr_matrix, type = "lower", lab = TRUE)
 ```
 
 📅 6. Temporal Patterns
@@ -107,3 +240,5 @@ combined <- combined %>%
 ```
 
 🧠 7. Insights & Next Steps
+
+

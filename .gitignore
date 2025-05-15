@@ -23,6 +23,7 @@ renv/staging/
 
 # Notebooks
 .ipynb_checkpoints/
+/notebooks/*.html
 
 # VSCode
 .vscode/
