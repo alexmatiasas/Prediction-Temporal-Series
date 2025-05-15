@@ -1,11 +1,5 @@
-- name: 🧹 EDA Template
-  description: For exploratory data analysis and cleaning tasks.
-  filename: eda_template.md
+# Select a template for your Pull Request
 
-- name: 🤖 Modeling Template
-  description: For model training, evaluation, or tuning.
-  filename: modeling_template.md
-
-- name: 🚀 Deployment Template
-  description: For FastAPI/Streamlit deployment or packaging changes.
-  filename: deployment_template.md
+- [Exploratory Data Analysis (EDA)](eda_template.md)
+- [Modeling](modeling_template.md)
+- [Deployment](deployment_template.md)
