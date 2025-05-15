@@ -47,7 +47,20 @@ energy <- read_csv("../data/raw/energy_dataset.csv")
 weather <- read_csv("../data/raw/weather_features.csv")
 ```
 
+<<<<<<< HEAD
+**🧹 Clean column names**
+
+```{r clean-names}
+# Transforming column names to snake_case for consistency
+energy <- energy %>% clean_names()
+weather <- weather %>% clean_names()
+```
+
+
+## 🧹 1. Data Overview, Quality Check & Cleaning
+=======
 ## 🧹 1. Data Overview & Structure
+>>>>>>> origin/develop
 
 To begin the analysis, we perform a quick structural inspection using `glimpse()` and a detailed statistical summary with `skim()` for both datasets: **energy** and **weather**.
 
@@ -70,6 +83,10 @@ The data appears to span from *2014-12-31* to *2018-12-31* with 1-hour intervals
 **🔍 Glimpse: Weather Dataset**
 
 ```{r structure-weather}
+<<<<<<< HEAD
+# Display the structure of the weather dataset
+=======
+>>>>>>> origin/develop
 glimpse(weather)
 ```
 
@@ -86,6 +103,10 @@ This dataset also has a datetime range matching the energy dataset, which facili
 **⚡ Energy Dataset**
 
 ```{r skim-summary-energy}
+<<<<<<< HEAD
+# Display summary statistics for the energy dataset
+=======
+>>>>>>> origin/develop
 skim(energy)
 ```
 
@@ -99,6 +120,10 @@ These two were removed from the dataset due to having **100% missing values**.
 **🌦️ Weather Dataset**
 
 ```{r skim-summary-weather}
+<<<<<<< HEAD
+# Display summary statistics for the weather dataset
+=======
+>>>>>>> origin/develop
 skim(weather)
 ```
 
@@ -117,6 +142,14 @@ This dataset is well-suited for modeling, with consistent sampling and granulari
 - The time coverage and granularity are compatible, making them ideal for feature engineering and merging.
 - From this point forward, we can derive temporal features, visualize trends, and assess correlations.
 
+<<<<<<< HEAD
+Finally we treat our datasets based on our observations:
+
+- We double-check for missing values,
+
+```{r missing-values}
+# Summarize missing values per variable in both datasets to assess data quality
+=======
 Finally we treat our datasets based on out observations:
 
 - We double-check for missing values and
@@ -131,6 +164,7 @@ weather %>%
   ) %>%
   arrange(desc(pct_missing))
 
+>>>>>>> origin/develop
 # NA summary - Energy
 energy %>%
   summarise(across(everything(), ~ sum(is.na(.)))) %>%
@@ -139,6 +173,23 @@ energy %>%
     pct_missing = round(100 * n_missing / nrow(energy), 2)
   ) %>%
   arrange(desc(pct_missing))
+<<<<<<< HEAD
+
+# NA summary - Weather
+weather %>%
+  summarise(across(everything(), ~ sum(is.na(.)))) %>%
+  pivot_longer(everything(), names_to = "variable", values_to = "n_missing") %>%
+  mutate(
+    pct_missing = round(100 * n_missing / nrow(weather), 2)
+  ) %>%
+  arrange(desc(pct_missing))
+```
+
+- remove columns with 100% missingness and
+
+```{r eliminating-columns-with-100-percent-missing}
+# Remove columns that contain 100% missing values and provide no useful information
+=======
 ```
 
 - remove columns with 100% missingness.
@@ -151,27 +202,42 @@ energy <- energy %>% clean_names()
 weather <- weather %>% clean_names()
 
 # 2. Remove 100% missing columns (now using cleaned names)
+>>>>>>> origin/develop
 energy <- energy %>%
   select(-any_of(c("generation_hydro_pumped_storage_aggregated",
                    "forecast_wind_offshore_eday_ahead")))
 ```
 
+<<<<<<< HEAD
+- rename time columns to `datetime` for consistency.
+=======
 🔍 2. Cleaning & Preprocessing
 
 ```{r columns-names}
 colnames(energy)
 colnames(weather)
 ```
+>>>>>>> origin/develop
 
 ```{r rename-columns-datetime}
 # Rename time columns to 'datetime' for consistency
 energy <- energy %>%
   rename(datetime = time)
+<<<<<<< HEAD
+=======
 
+>>>>>>> origin/develop
 weather <- weather %>%
   rename(datetime = dt_iso)
 ```
 
+<<<<<<< HEAD
+and that's it! We are ready to merge the datasets.
+
+## 🔍 2. Merging Datasets
+
+Once we have cleaned the datasets, we can merge them based on the `datetime` column. This will allow us to analyze the relationship between **energy** consumption and **weather** conditions.
+=======
 📊 3. Exploratory Plots
 
 Energy: total production vs consumption
@@ -202,12 +268,82 @@ weather %>%
 ```
 
 🔁 4. Merging Datasets (if needed)
+>>>>>>> origin/develop
 
 ```{r merge}
 combined <- left_join(energy, weather, by = "datetime")
 ```
 
+<<<<<<< HEAD
+We use `left_join()` to ensure that all records from the energy dataset are retained, even if there are no corresponding weather records.
+
+## 📊 3. Exploratory Plots
+
+In this section, we visualize major variables over time to understand trends, patterns, and potential anomalies. All plots are based on the `combined` dataset, which merges **weather** and **energy** information.
+
+### 📈 3.1 Energy Load: Forecast vs Actual
+
+This plot shows the forecasted vs actual energy load over time. While the general trends match, we can spot some deviations, which may indicate model drift, unexpected events, or forecasting bias.
+
+```{r plot-energy-load}
+combined %>%
+  select(datetime, total_load_forecast, total_load_actual) %>%
+  pivot_longer(-datetime) %>%
+  ggplot(aes(x = datetime, y = value, color = name)) +
+  geom_line(alpha = 0.6) +
+  labs(title = "Energy Load: Forecast vs Actual", y = "Load (MW)", x = "Time") +
+  theme_minimal()
+```
+
+### 🌤️ 3.2 Weather Trends Over Time
+
+We track the evolution of temperature, humidity, and wind speed. The periodic structure (particularly in temperature) suggests strong seasonality. Humidity and wind speed show more variability, potentially correlating with energy production in certain sources.
+
+```{r plot-weather-trends}
+combined %>%
+  select(datetime, temp, wind_speed, humidity) %>%
+  pivot_longer(-datetime) %>%
+  ggplot(aes(x = datetime, y = value, color = name)) +
+  geom_line(alpha = 0.5) +
+  facet_wrap(~name, scales = "free_y") +
+  labs(title = "Weather Variables Over Time", y = "Value", x = "Time") +
+  theme_minimal()
+```
+
+### 📊 3.3 Price Trends
+
+This chart compares the day-ahead market price with the actual price. Large discrepancies may highlight forecast errors or market volatility. These trends are essential for assessing model accuracy and energy strategy.
+
+```{r plot-prices}
+combined %>%
+  select(datetime, price_day_ahead, price_actual) %>%
+  pivot_longer(-datetime) %>%
+  ggplot(aes(x = datetime, y = value, color = name)) +
+  geom_line(alpha = 0.6) +
+  labs(title = "Electricity Prices: Day Ahead vs Actual", y = "€/MWh", x = "Time") +
+  theme_minimal()
+```
+
+### 🔎 3.4 Energy Load - Sample Week
+
+To better understand short-term fluctuations, we zoom into the first week of 2015. We observe clear daily cycles, indicating high periodicity and potential for time-series decomposition.
+
+```{r plot-prices-zoom}
+combined %>%
+  filter(datetime >= as.POSIXct("2015-01-01"),
+         datetime <= as.POSIXct("2015-01-07")) %>%
+  ggplot(aes(x = datetime, y = total_load_actual)) +
+  geom_line() +
+  labs(title = "Energy Load - Sample Week", y = "MW", x = "Date") +
+  theme_minimal()
+```
+
+
+
+📈 4. Correlation Analysis
+=======
 📈 5. Correlation Analysis
+>>>>>>> origin/develop
 
 ```{r correlation}
 combined %>%
@@ -228,7 +364,11 @@ corr_matrix <- combined %>%
 ggcorrplot(corr_matrix, type = "lower", lab = TRUE)
 ```
 
+<<<<<<< HEAD
+📅 Temporal Patterns
+=======
 📅 6. Temporal Patterns
+>>>>>>> origin/develop
 
 ```{r time-features}
 combined <- combined %>%
@@ -239,6 +379,10 @@ combined <- combined %>%
   )
 ```
 
+<<<<<<< HEAD
+🧠 5. Insights & Next Steps
+=======
 🧠 7. Insights & Next Steps
+>>>>>>> origin/develop
 
 
