@@ -1,5 +1,11 @@
-# Select a template for your Pull Request
+- name: EDA Template
+  description: Use this template for Exploratory Data Analysis
+  filename: eda_template.md
 
-- [Exploratory Data Analysis (EDA)](eda_template.md)
-- [Modeling](modeling_template.md)
-- [Deployment](deployment_template.md)
+- name: Modeling Template
+  description: Use this template for model training and evaluation
+  filename: modeling_template.md
+
+- name: Deployment Template
+  description: Use this template for deployment-related changes
+  filename: deployment_template.md
