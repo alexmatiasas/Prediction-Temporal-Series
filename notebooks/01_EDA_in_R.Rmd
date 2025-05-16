@@ -260,15 +260,60 @@ combined <- combined %>%
   )
 ```
 
+### 🕐 4.2 Average Load by Hour
 
-```{r time-features}
-combined <- combined %>%
-  mutate(
-    hour = hour(datetime),
-    wday = wday(datetime, label = TRUE),
-    month = month(datetime, label = TRUE)
-  )
+```{r avg-load-hour}
+# Average actual load by hour of the day
+combined %>%
+  group_by(hour) %>%
+  summarise(avg_load = mean(total_load_actual, na.rm = TRUE)) %>%
+  ggplot(aes(x = hour, y = avg_load)) +
+  geom_line(color = "steelblue", linewidth = 1) +
+  labs(
+    title = "Average Energy Load by Hour",
+    x = "Hour of Day", y = "Average Load (MW)"
+  ) +
+  theme_minimal()
 ```
+
+💡 **Insight**: This plot reveals the daily cycle of energy demand, typically with peaks in the morning and evening, and a drop at night.
+
+### 📅 4.3 Load Distribution by Day of Week
+
+```{r load-distribution-wday}
+# Distribution of actual load by weekday
+combined %>%
+  mutate(wday = factor(wday, levels = c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"))) %>%
+  ggplot(aes(x = wday, y = total_load_actual)) +
+  geom_boxplot(fill = "skyblue", alpha = 0.6, outlier.color = "gray") +
+  labs(
+    title = "Energy Load Distribution by Weekday",
+    x = "Day of Week", y = "Load (MW)"
+  ) +
+  theme_minimal()
+```
+
+💡 **Insight**: Boxplots show variability between weekdays and weekends. Useful to detect behavioral or industrial consumption patterns.
+
+### 📆 4.4 Load Distribution by Month
+
+```{r load-distribution-month}
+# Average load per month across all years
+combined %>%
+  group_by(month) %>%
+  summarise(avg_load = mean(total_load_actual, na.rm = TRUE)) %>%
+  ggplot(aes(x = month, y = avg_load, group = 1)) +
+  geom_line(color = "darkgreen", linewidth = 1) +
+  geom_point(color = "darkgreen", size = 2) +
+  labs(
+    title = "Monthly Average Energy Load",
+    x = "Month", y = "Average Load (MW)"
+  ) +
+  theme_minimal()
+```
+
+💡 **Insight**: This plot helps identify seasonal demand patterns. For example, summer or winter peaks could guide forecasting strategies.
+
 
 📈 4. Correlation Analysis
 
