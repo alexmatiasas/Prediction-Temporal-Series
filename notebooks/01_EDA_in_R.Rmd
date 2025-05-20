@@ -4,7 +4,7 @@ author: "Manuel Alejandro Matías Astorga"
 output:
   html_document:
     toc: true
-    toc_depth: 2
+    toc_depth: 3
     toc_float: true
     number_sections: false
 ---
@@ -25,7 +25,7 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)        # Se
 options(scipen = 999)  # avoid scientific notation
 ```
 
-**📦 Load libraries**
+### 📦 Load libraries
 
 ```{r libraries}
 # Load necessary packages for data wrangling and visualization
@@ -39,7 +39,7 @@ library(viridis)      # Color palettes
 library(ggcorrplot)   # Correlation matrix visualization
 ```
 
-**📁 Load data**
+### 📁 Load data
 
 ```{r load_data}
 # Read raw CSV files (energy and weather) from 'data/raw' relative to notebook location
@@ -47,7 +47,7 @@ energy <- read_csv("../data/raw/energy_dataset.csv")
 weather <- read_csv("../data/raw/weather_features.csv")
 ```
 
-**🧹 Clean column names**
+### 🧹 Clean column names
 
 ```{r convert-columns}
 # Convert column names to snake_case format
@@ -59,7 +59,9 @@ weather <- weather %>% clean_names()
 
 To begin the analysis, we perform a quick structural inspection using `glimpse()` and a detailed statistical summary with `skim()` for both datasets: **energy** and **weather**.
 
-**🔍 Glimpse: Energy Dataset**
+### 🔍 1.1 Glimpse: See Columns and Data Types
+
+#### 🔍 1.1.1 Glimpse: Energy Dataset
 
 ```{r structure-energy}
 # Display the structure of the energy dataset
@@ -75,7 +77,7 @@ The *energy* dataset contains 35,064 hourly records and 29 columns, which includ
 
 The data appears to span from *2014-12-31* to *2018-12-31* with 1-hour intervals.
 
-**🔍 Glimpse: Weather Dataset**
+#### 🔍 1.1.2 Glimpse: Weather Dataset
 
 ```{r structure-weather}
 # Display the structure of the weather dataset
@@ -90,9 +92,9 @@ The weather dataset has 178,396 rows and 17 columns, including:
 
 This dataset also has a datetime range matching the energy dataset, which facilitates temporal merging.
 
-**📊 Skim: Summary Statistics**
+### 📊 1.2 Skim: Summary Statistics
 
-**⚡ Energy Dataset**
+#### ⚡ 1.2.1 Skim: Energy Dataset
 
 ```{r skim-summary-energy}
 # Display summary statistics for the energy dataset
@@ -106,7 +108,7 @@ skim(energy)
 These two were removed from the dataset due to having **100% missing values**.
 - Some generation sources such as **coal-derived gas**, **oil shale**, and **geothermal** are recorded as zeros or missing throughout the entire time series — this might be expected depending on Spain’s energy infrastructure.
 
-**🌦️ Weather Dataset**
+#### 🌦️ 1.2.2 Skim:  Weather Dataset
 
 ```{r skim-summary-weather}
 # Display summary statistics for the weather dataset
@@ -121,7 +123,7 @@ skim(weather)
 
 This dataset is well-suited for modeling, with consistent sampling and granularity.
 
-**📌 Conclusion of Initial Inspection**
+### 📌 1.3 Conclusion of Initial Inspection
 
 - Both datasets are **clean and well-structured**.
 - We removed only two columns due to full missingness.
@@ -244,7 +246,7 @@ combined %>%
   theme_minimal()
 ```
 
-## 4. 📅 Temporal Patterns
+## 📅 4. Temporal Patterns
 
 This section analyzes temporal patterns in energy demand by extracting time-based features and visualizing their influence on consumption.
 
@@ -314,27 +316,70 @@ combined %>%
 
 💡 **Insight**: This plot helps identify seasonal demand patterns. For example, summer or winter peaks could guide forecasting strategies.
 
+## 📈 5. Correlation Analysis
 
-📈 4. Correlation Analysis
+In this section, we explore the relationships between numeric features, particularly between weather conditions and energy load.
 
-```{r correlation}
-combined %>%
-  select(where(is.numeric)) %>%   # just numeric columns
+### 🔍 5.1 Why we do correlation analysis?
+
+Correlation analysis helps us understand the relationships between numeric features in the dataset. This is useful for:
+
+- Selecting relevant predictors for machine learning models.
+- Detecting multicollinearity and removing redundant variables.
+- Uncovering physical dependencies or seasonal behavior in energy demand.
+
+In this notebook, we use **Pearson correlation**, which measures linear relationships. We also apply `drop_na()` to ensure the correlations are calculated on complete data only.
+
+```{r correlation-matrix}
+# Select only numeric columns and compute Pearson correlation
+correlation_matrix <- combined %>%
+  select(where(is.numeric)) %>%
   drop_na() %>%
-  cor() %>%
-  as.data.frame() %>%
-  round(2)
+  cor(method = "pearson")
 ```
 
-```{r correlation-plot}
-# Visualize correlation matrix
-corr_matrix <- combined %>%
-  select(where(is.numeric)) %>%
+### 🔍 5.2 Visualize Correlation Matrix
+
+```{r plot-correlation-matrix}
+# Plot correlation matrix using ggcorrplot
+ggcorrplot(correlation_matrix, 
+           method = "circle", 
+           type = "lower", 
+           lab = TRUE,
+           lab_size = 2.5,
+           colors = c("#6D9EC1", "white", "#E46767"),
+           title = "Correlation Matrix (Numerical Features)",
+           ggtheme = theme_minimal())
+```
+
+💡 **Note**: This global correlation matrix provides a technical overview of all numeric features. While useful to detect potential redundancies or collinearities, its density makes it hard to extract actionable insights.
+
+We defer focused interpretation to the next section.
+
+### 🧠 5.3 Correlation on Energy Load and Weather Variables
+
+To better understand how energy consumption relates to weather, we isolated key variables and computed their pairwise Pearson correlations.
+
+```{r correlation-energy-weather}
+# Focus only on energy load and weather variables
+subset_corr <- combined %>%
+  select(total_load_actual, total_load_forecast, temp, humidity, wind_speed, pressure) %>%
   drop_na() %>%
   cor()
 
-ggcorrplot(corr_matrix, type = "lower", lab = TRUE)
+ggcorrplot(subset_corr, lab = TRUE, type = "lower", ggtheme = theme_minimal())
 ```
 
-🧠 5. Insights & Next Steps
+### 💡 Key Insights
 
+- 🔴 `total_load_actual` and `total_load_forecast` are very strongly correlated (≈ 1), which confirms the forecast’s high alignment with actual demand.
+- 🔵 `temp` and `humidity` exhibit a strong negative correlation (-0.574), reflecting the physical inverse relationship between air temperature and relative humidity.
+- 🟡 The relationship between energy demand (`total_load_actual`) and weather conditions is weak to moderate:
+  - Temperature: 0.18 (weak positive)
+  - Humidity: -0.25 (weak negative)
+  - Wind speed: 0.13 (very weak positive)
+- ⚪ `Pressure` is effectively uncorrelated with both energy demand and other variables (all correlations ≈ 0).
+
+These results suggest that while weather contributes to variations in energy usage, its linear influence is limited and possibly non-linear or confounded by other factors like time-of-day or city.
+
+🧠 5. Insights & Next Steps
