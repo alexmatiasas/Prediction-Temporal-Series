@@ -1,9 +1,11 @@
-## 🤖 Modeling Pull Request
+# 🤖 Modeling Pull Request
 
-### 📌 Summary
+## 📌 Summary
+
 _Describe briefly the modeling task addressed in this PR (e.g., classification, regression, forecasting)._
 
-### 🔍 Included in this PR
+## 🔍 Included in this PR
+
 - [ ] Feature engineering
 - [ ] Train/test split
 - [ ] Model selection
@@ -12,12 +14,14 @@ _Describe briefly the modeling task addressed in this PR (e.g., classification, 
 - [ ] Metrics reporting
 - [ ] Model saving/exporting
 
-### 📈 Metrics (if available)
+## 📈 Metrics (if available)
+
 | Model | Accuracy | Precision | Recall | F1 Score | AUC |
 |-------|----------|-----------|--------|----------|-----|
 |       |          |           |        |          |     |
 
-### 🧪 Notes
+## 🧪 Notes
+
 _Include any validation steps, concerns, or assumptions._
 
 ---

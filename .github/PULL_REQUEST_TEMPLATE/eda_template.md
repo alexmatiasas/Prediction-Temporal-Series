@@ -1,9 +1,11 @@
-## ✨ EDA - Exploratory Data Analysis Pull Request
+# ✨ EDA - Exploratory Data Analysis Pull Request
 
-### 📌 Summary
+## 📌 Summary
+
 _Add a concise summary of what this EDA covers._
 
-### 🔍 Included in this PR
+## 🔍 Included in this PR
+
 - [x] Data loading and cleaning
 - [x] Column standardization
 - [x] Missing values analysis
@@ -11,9 +13,10 @@ _Add a concise summary of what this EDA covers._
 - [ ] Exploratory plots
 - [ ] Time-based feature engineering
 
-### 📊 Output / Visualizations
+## 📊 Output / Visualizations
+
 _Insert screenshots or `knit` status, if applicable._
 
 ---
 
-_This PR is part of the `feature/eda` development workflow._
+_This PR is part of the `feature/eda` development workflow.
