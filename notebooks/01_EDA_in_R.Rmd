@@ -382,4 +382,24 @@ ggcorrplot(subset_corr, lab = TRUE, type = "lower", ggtheme = theme_minimal())
 
 These results suggest that while weather contributes to variations in energy usage, its linear influence is limited and possibly non-linear or confounded by other factors like time-of-day or city.
 
-🧠 5. Insights & Next Steps
+## 🧠 6. Insights & Next Steps
+
+This exploratory analysis has revealed several key patterns in the energy demand dataset:
+
+### 📌 Key Insights
+
+- **Strong correlation** between `total_load_actual` and `total_load_forecast` confirms the reliability of the forecasts provided.
+- **Temperature shows moderate negative correlation with humidity**, hinting at potential seasonal effects.
+- **Energy consumption patterns follow a clear daily cycle**, with peaks in the morning and evening, and lower demand at night.
+- **Weekends show slightly lower energy demand**, which may reflect reduced industrial activity.
+- **Seasonal variations** suggest that monthly factors should be considered when building predictive models.
+
+### 🚀 Next Steps
+
+- Engineer **lagged features** to capture temporal dependencies.
+- Create **rolling averages** or **moving windows** for smoother time-series signals.
+- Introduce **categorical encodings** (e.g., one-hot for weekdays/months).
+- Prepare train-test split considering **time-based validation** (e.g., walk-forward).
+- Begin modeling with baseline approaches (e.g., linear regression, ARIMA, or gradient boosting).
+
+This EDA serves as a foundation to inform feature selection and modeling decisions in the next phase of this project.
