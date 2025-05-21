@@ -758,17 +758,6 @@ files = [
 ]
 
 [[package]]
-name = "decli"
-version = "0.6.3"
-description = "Minimal, easy-to-use, declarative cli tool"
-optional = false
-python-versions = ">=3.9"
-files = [
-    {file = "decli-0.6.3-py3-none-any.whl", hash = "sha256:5152347c7bb8e3114ad65db719e5709b28d7f7f45bdb709f70167925e55640f3"},
-    {file = "decli-0.6.3.tar.gz", hash = "sha256:87f9d39361adf7f16b9ca6e3b614badf7519da13092f2db3c80ca223c53c7656"},
-]
-
-[[package]]
 name = "decorator"
 version = "5.2.1"
 description = "Decorators for Humans"
