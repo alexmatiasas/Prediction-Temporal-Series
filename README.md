@@ -14,27 +14,27 @@ The goal is to create a robust pipeline that handles data ingestion, exploratory
 
 ## 📁 Project Structure
 
-```
-.
-├── configs/                # YAML/JSON configuration files (hyperparams, paths, DAGs)
-├── data/                   # Raw and processed data files
-├── docker/                 # (optional) Dockerfiles and Docker Compose configs
-├── models/                 # Trained models and serialized objects
-├── notebooks/             # EDA in R and modeling in Python
-│   ├── 01_EDA_in_R.Rmd
-│   └── 02_Modeling_in_Python.ipynb
-├── reports/               # Generated reports and plots
-├── src/                   # Source code modules
-│   ├── data/              # Data loading and preprocessing
-│   ├── features/          # Feature engineering
-│   ├── models/            # Training and prediction scripts
-├── tests/                 # Unit tests
-├── requirements.txt       # Python dependencies (legacy)
-├── pyproject.toml         # Poetry environment configuration
-├── Prediction-Temporal-Series.Rproj # RStudio project file
-├── README.md
-└── .env                   # Environment variables (e.g., API keys)
-```
+    ```
+    .
+    ├── configs/                # YAML/JSON configuration files (hyperparams, paths, DAGs)
+    ├── data/                   # Raw and processed data files
+    ├── docker/                 # (optional) Dockerfiles and Docker Compose configs
+    ├── models/                 # Trained models and serialized objects
+    ├── notebooks/             # EDA in R and modeling in Python
+    │   ├── 01_EDA_in_R.Rmd
+    │   └── 02_Modeling_in_Python.ipynb
+    ├── reports/               # Generated reports and plots
+    ├── src/                   # Source code modules
+    │   ├── data/              # Data loading and preprocessing
+    │   ├── features/          # Feature engineering
+    │   ├── models/            # Training and prediction scripts
+    ├── tests/                 # Unit tests
+    ├── requirements.txt       # Python dependencies (legacy)
+    ├── pyproject.toml         # Poetry environment configuration
+    ├── Prediction-Temporal-Series.Rproj # RStudio project file
+    ├── README.md
+    └── .env                   # Environment variables (e.g., API keys)
+    ```
 
 ---
 
@@ -77,21 +77,33 @@ The goal is to create a robust pipeline that handles data ingestion, exploratory
 
 ---
 
+## 📊 EDA Notebook
+
+A detailed exploratory data analysis was conducted in R, covering:
+
+* Data quality inspection
+* Temporal patterns (hourly, daily, monthly)
+* Correlation analysis and actionable insights
+
+🧾 [View the full EDA notebook (RPubs)](http://rpubs.com/Alex_matias_as/energy-weather-eda)
+
+---
+
 ## 📦 Getting Started
 
-```bash
-# Clone the repository
-$ git clone https://github.com/alexmatiasas/Prediction-Temporal-Series.git
-$ cd Prediction-Temporal-Series
+    ```bash
+    # Clone the repository
+    $ git clone https://github.com/alexmatiasas/Prediction-Temporal-Series.git
+    $ cd Prediction-Temporal-Series
 
-# Install dependencies (Python)
-$ poetry install
+    # Install dependencies (Python)
+    $ poetry install
 
-# Set up R environment
-$ R
-> install.packages("renv")
-> renv::init()
-```
+    # Set up R environment
+    $ R
+    > install.packages("renv")
+    > renv::init()
+    ```
 
 ---
 
@@ -115,11 +127,11 @@ $ R
 
 Create a `.env` file in the root folder for API keys and sensitive config:
 
-```
-KAGGLE_USERNAME=your_username
-KAGGLE_KEY=your_key
-WEATHER_API_KEY=...
-```
+    ```
+    KAGGLE_USERNAME=your_username
+    KAGGLE_KEY=your_key
+    WEATHER_API_KEY=...
+    ```
 
 ---
 
