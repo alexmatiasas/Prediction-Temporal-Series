@@ -185,6 +185,8 @@ combined <- left_join(energy, weather, by = "datetime")
 
 We use `left_join()` to ensure that all records from the energy dataset are retained, even if there are no corresponding weather records.
 
+> **Note**: Weather data includes observations from five major Spanish cities. Since the energy dataset is aggregated at the national level, no spatial distinction is made in this EDA. All weather records are merged and interpreted as representative of national conditions. In a future step, we could aggregate weather by hour (averaging across cities) or isolate individual cities if needed.
+
 ## 📊 3. Exploratory Plots
 
 In this section, we visualize major variables over time to understand trends, patterns, and potential anomalies. All plots are based on the `combined` dataset, which merges **weather** and **energy** information.
@@ -342,9 +344,9 @@ correlation_matrix <- combined %>%
 
 ```{r plot-correlation-matrix}
 # Plot correlation matrix using ggcorrplot
-ggcorrplot(correlation_matrix, 
-           method = "circle", 
-           type = "lower", 
+ggcorrplot(correlation_matrix,
+           method = "circle",
+           type = "lower",
            lab = TRUE,
            lab_size = 2.5,
            colors = c("#6D9EC1", "white", "#E46767"),
@@ -403,3 +405,14 @@ This exploratory analysis has revealed several key patterns in the energy demand
 - Begin modeling with baseline approaches (e.g., linear regression, ARIMA, or gradient boosting).
 
 This EDA serves as a foundation to inform feature selection and modeling decisions in the next phase of this project.
+
+*As a final result, we export our final `combined` dataset for future use.*
+
+```{r export-combined}
+# Create 'processed' folder if it doesn't exist
+if (!dir.exists("../data/processed")) {
+  dir.create("../data/processed", recursive = TRUE)
+}
+# Export combined cleaned dataset for use in Python
+write_csv(combined, "../data/processed/combined_clean.csv")
+```

@@ -24,6 +24,7 @@ renv/staging/
 # Notebooks
 .ipynb_checkpoints/
 /notebooks/*.html
+/notebooks/rsconnect/
 
 # VSCode
 .vscode/
@@ -63,5 +64,5 @@ renv/library/
 renv/python/
 renv/staging/
 
-# Datasets locales
+# Datasets locals
 data/
