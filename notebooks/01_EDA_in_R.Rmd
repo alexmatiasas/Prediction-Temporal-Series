@@ -344,9 +344,9 @@ correlation_matrix <- combined %>%
 
 ```{r plot-correlation-matrix}
 # Plot correlation matrix using ggcorrplot
-ggcorrplot(correlation_matrix, 
-           method = "circle", 
-           type = "lower", 
+ggcorrplot(correlation_matrix,
+           method = "circle",
+           type = "lower",
            lab = TRUE,
            lab_size = 2.5,
            colors = c("#6D9EC1", "white", "#E46767"),
