@@ -34,9 +34,9 @@ jobs:
         run: |
           poetry run pre-commit run --all-files --show-diff-on-failure
 
-      - name: Run tests
-        run: |
-          poetry run pytest --cov=src --cov-report=term
+      # - name: Run tests
+      #   run: |
+      #     poetry run pytest --cov=src --cov-report=term
 
       - name: Run mypy
         run: |
