@@ -48,6 +48,7 @@ airflow.cfg
 
 # Models and temp outputs
 models/
+!src/models/
 *.h5
 *.pkl
 *.joblib
