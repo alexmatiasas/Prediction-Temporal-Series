@@ -45,3 +45,15 @@ jobs:
       - name: Run ruff
         run: |
           poetry run ruff check src/
+
+      - name: Run Bandit (security linter)
+        run: |
+          poetry run bandit -r .
+
+      - name: Run Safety (dependency audit)
+        run: |
+          poetry run safety check
+
+      - name: Run pip-audit (PyPA advisory scan)
+        run: |
+          poetry run pip-audit
