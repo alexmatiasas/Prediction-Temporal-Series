@@ -35,6 +35,13 @@ pytest = "^8.4.1"
 pytest-cov = "^6.2.1"
 pandas-stubs = "^2.3.0.250703"
 types-seaborn = "^0.13.2.20250516"
+sqlfluff = "^3.4.2"
+sqlalchemy = "^2.0.41"
+dotenv = "^0.9.9"
+psycopg2-binary = "^2.9.10"
+bandit = "^1.8.6"
+safety = "^3.6.0"
+pip-audit = "^2.9.0"
 
 [build-system]
 requires = ["poetry-core"]

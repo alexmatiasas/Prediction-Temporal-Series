@@ -1,0 +1,81 @@
+[sqlfluff]
+dialect = postgres
+templater = jinja
+# ejemplo: evita ambigüedades en SET columns
+exclude_rules = AM07
+tab_space_size = 4
+max_line_length = 100
+indent_unit = space
+
+# =======================
+# Capitalisation Bundle
+# =======================
+
+[sqlfluff:rules:capitalisation.keywords]
+capitalisation_policy = upper
+
+[sqlfluff:rules:capitalisation.types]
+capitalisation_policy = upper
+
+[sqlfluff:rules:capitalisation.identifiers]
+extended_capitalisation_policy = lower
+
+[sqlfluff:rules:capitalisation.functions]
+extended_capitalisation_policy = lower
+
+# =======================
+# Layout Bundle
+# =======================
+
+[sqlfluff:rules:layout.indent]
+tab_space_size = 4
+
+[sqlfluff:rules:layout.commas]
+line_position = trailing
+
+[sqlfluff:rules:layout.long_lines]
+max_line_length = 100
+
+# =======================
+# Convention Bundle
+# =======================
+
+[sqlfluff:rules:convention.terminator]
+require_final_semicolon = true
+
+[sqlfluff:rules:convention.select_trailing_comma]
+# Puedes poner true si prefieres coma final en SELECT multiline
+force_enable = false
+
+[sqlfluff:rules:convention.blocked_words]
+blocked_words = select *, drop table
+
+# =======================
+# Aliasing Bundle
+# =======================
+
+[sqlfluff:rules:aliasing.forbid]
+forbid_table_aliases = false
+forbid_column_aliases = false
+
+[sqlfluff:rules:aliasing.unused]
+require_alias_usage = true
+
+# =======================
+# References Bundle
+# =======================
+
+[sqlfluff:rules:references.qualification]
+qualify_references = explicit
+
+# =======================
+# Extras
+# =======================
+
+# Evita joins innecesarios
+[sqlfluff:rules:structure.unused_join]
+enabled = true
+
+# Controla el orden en columnas de CREATE
+[sqlfluff:rules:structure.column_order]
+enabled = true
